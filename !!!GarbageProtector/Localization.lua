@@ -59,7 +59,7 @@ Die betroffenen Funktionen werden beim Laden des Addons in jedem Fall gehookt.
 Um das Hooking vollständig zu unterbinden, muss GarbageProtector über die Addon-Verwaltung deaktiviert und das UI neu geladen werden.
 ]]
 
-L["Handle |cffffd700%s|r calls"]  = "Collectgarbage-Aufrufe behandeln"
+L["Handle |cffffd700%s|r calls"]  = "Verarbeitung von |cffffd700%s|r-Aufrufen"
 L.CollecteGarbageTooltip = "Weg mit diesen r\195\188cksichtslosen collectgarbage-Aufrufen!  Ja!"
 
 L.UpdateAddOnMemoryUsageTooltip = [[
