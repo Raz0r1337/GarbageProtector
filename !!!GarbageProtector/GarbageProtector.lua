@@ -217,12 +217,44 @@ end
 
 --UpdateAddOnMemoryUsage is a waste of time and some addons like Details call it periodically for no apparent reason
 --this hook makes memory profiling addons that call GetAddOnMemoryUsage show 0 or the last returned value of course
+-- UpdateAddOnMemoryUsage: nur für Whitelist durchlassen
 local oldUpdateAddOnMemoryUsage = UpdateAddOnMemoryUsage
+
+local function IsUpdateMemWhitelisted()
+    local stack = debugstack(3, 3, 0) or ""
+
+    -- feste Defaults
+    if stack:find("Interface\\FrameXML\\", 1, true) then return true end
+  --if stack:find("Interface\\AddOns\\ACP\\", 1, true) then return true end
+
+    -- optional: eigene Whitelist in SavedVariables
+    if type(GarbageProtectorDB) == "table" and type(GarbageProtectorDB.UpdateMemWhitelist) == "table" then
+        for _, pat in ipairs(GarbageProtectorDB.UpdateMemWhitelist) do
+            if type(pat) == "string" and pat ~= "" and stack:find(pat, 1, true) then
+                return true
+            end
+        end
+    end
+
+    return false
+end
+
 _G.UpdateAddOnMemoryUsage = function(...)
-	if GarbageProtectorDB == nil or GarbageProtectorDB.Enabled == nil or GarbageProtectorDB.HandleUpdateAddOnMemoryUsage == nil then
-		InitializeGarbageProtectorDB(defaults)
-	end
-	if GarbageProtectorDB.HandleUpdateAddOnMemoryUsage == false or GarbageProtectorDB.Enabled == false then
-		return oldUpdateAddOnMemoryUsage(...)
-	end
+    if GarbageProtectorDB == nil
+        or GarbageProtectorDB.Enabled == nil
+        or GarbageProtectorDB.HandleUpdateAddOnMemoryUsage == nil
+    then
+        InitializeGarbageProtectorDB(defaults)
+    end
+
+    if GarbageProtectorDB.Enabled == false
+        or GarbageProtectorDB.HandleUpdateAddOnMemoryUsage == false
+    then
+        return oldUpdateAddOnMemoryUsage(...)
+    end
+
+    if IsUpdateMemWhitelisted() then
+        return oldUpdateAddOnMemoryUsage(...)
+    end
+    -- sonst blocken = nichts tun
 end
